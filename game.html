@@ -1,0 +1,62 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=no">
+    <title>Tablero - No Mercy</title>
+    <link rel="stylesheet" href="css/style.css">
+</head>
+<body>
+    <div id="contenedor-toast"></div>
+
+    <div id="mesa">
+
+        <!-- SALA DE ESPERA -->
+        <div id="controles-inicio" class="modal-cristal" style="display: none;">
+            <h1 class="logo-title">NO<br><span style="color:#ff3b30">MERCY</span></h1>
+            <p id="esperando-host" style="display:none; color: #bdc3c7;">Esperando a que el anfitrión inicie...</p>
+            <button id="btn-comenzar" class="btn-principal host-btn" style="display: none;">Repartir y Empezar Partida</button>
+        </div>
+
+        <!-- ZONA RIVALES (arriba) -->
+        <div id="zona-rivales"></div>
+
+        <!-- HEADER: info de partida -->
+        <header id="info-partida">
+            <div class="castigo-box">
+                <h3 id="stack-castigo" class="oculta"></h3>
+                <button id="btn-aceptar-castigo" class="btn-castigo oculta">☠️ Aceptar castigo</button>
+            </div>
+            <div id="info-sentido" class="sentido-indicator">→</div>
+        </header>
+
+        <!-- CENTRO: mazo y pila -->
+        <main class="centro">
+            <div id="pila-tomar" class="mazo-cerrado" title="Robar carta">
+                <div class="logo-reverso">NO<br><span style="color:#ff3b30">MERCY</span></div>
+            </div>
+            <div id="pila-tirar"></div>
+        </main>
+
+        <!-- FOOTER: mi mano -->
+        <footer id="mi-zona" class="mano-cristal">
+            <div class="header-mano">
+                <h2 id="turno-actual">Conectando...</h2>
+                <div style="display: flex; gap: 10px; align-items: center;">
+                    <!-- Contador de cartas con indicador de peligro/emoción -->
+                    <div id="contador-cartas" class="contador-cartas" title="Cartas en tu mano">
+                        <span id="num-cartas">0</span>
+                        <span class="contador-label">cartas</span>
+                    </div>
+                    <button id="btn-reglas" class="btn-icono" title="Ver Reglas">📜</button>
+                    <button id="btn-uno" class="btn-uno oculta">¡UNO!</button>
+                </div>
+            </div>
+            <div id="mis-cartas" class="mano"></div>
+        </footer>
+
+    </div>
+
+    <script type="module" src="js/renderizado.js"></script>
+</body>
+</html>

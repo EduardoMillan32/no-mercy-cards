@@ -1,0 +1,36 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>No Mercy - Acceso</title>
+    <link rel="stylesheet" href="css/style.css">
+</head>
+<body class="login-body">
+    <div class="container login-container">
+        <h1 class="logo-title">NO MERCY</h1>
+        <p class="subtitle">Solo sobrevivirá uno</p>
+        
+        <div class="input-group">
+            <input type="text" id="nombreUsuario" placeholder="Tu Nombre (Ej. Pablo)" autocomplete="off">
+            <input type="text" id="idSala" placeholder="Código de Sala (Ej. casa)" autocomplete="off">
+        </div>
+        
+        <button id="btnUnirse" class="btn-principal">Unirse a la Partida</button>
+    </div>
+
+    <script type="module">
+        import { inicializarSesion } from './js/jugadores.js';
+        document.getElementById('btnUnirse').onclick = () => {
+            const n = document.getElementById('nombreUsuario').value.trim();
+            const s = document.getElementById('idSala').value.trim();
+            if(n && s) {
+                document.getElementById('btnUnirse').innerText = "Conectando...";
+                inicializarSesion(n, s);
+            } else {
+                alert("Por favor llena ambos campos.");
+            }
+        };
+    </script>
+</body>
+</html>

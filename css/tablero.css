@@ -1,0 +1,466 @@
+/* css/tablero.css */
+/* Estructura del tablero de juego: mesa, header, centro, mano del jugador, mazo */
+
+/* ----- MESA PRINCIPAL ----- */
+#mesa {
+    display: flex;
+    flex-direction: column;
+    height: 100%;
+    justify-content: space-between;
+    position: relative;
+}
+
+/* ----- HEADER INFO PARTIDA ----- */
+header#info-partida {
+    position: absolute;
+    top: 12px; right: 16px; left: 16px;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    pointer-events: none;
+    z-index: 100;
+}
+header#info-partida > * { pointer-events: auto; }
+
+.castigo-box {
+    display: flex;
+    flex-direction: column;
+    align-items: flex-start;
+    gap: 6px;
+}
+
+.castigo-box h3 {
+    background: #e74c3c;
+    color: white;
+    padding: 10px 20px;
+    border-radius: 30px;
+    font-weight: 900;
+    margin: 0;
+    box-shadow: 0 5px 15px rgba(231, 76, 60, 0.5);
+    animation: latido 1.5s infinite;
+}
+
+.sentido-indicator {
+    font-size: 1.8rem;
+    font-weight: 900;
+    color: var(--gold);
+    text-shadow: 0 0 10px rgba(241,196,15,0.6);
+    animation: latido 2s infinite;
+}
+
+/* ----- BOTÓN ACEPTAR CASTIGO ----- */
+.btn-castigo {
+    background: linear-gradient(135deg, #e74c3c, #c0392b);
+    color: white;
+    border: 2px solid white;
+    border-radius: 8px;
+    padding: 8px 16px;
+    font-weight: 800;
+    font-size: 0.9rem;
+    cursor: pointer;
+    transition: transform 0.15s, box-shadow 0.15s;
+    box-shadow: 0 4px 12px rgba(231,76,60,0.5);
+}
+.btn-castigo:hover  { transform: translateY(-2px); box-shadow: 0 8px 20px rgba(231,76,60,0.6); }
+.btn-castigo:active { transform: scale(0.95); }
+
+/* ----- CENTRO: mazo y pila ----- */
+main.centro {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    gap: 30px;
+    flex-grow: 1;
+    margin-bottom: 150px; /* espacio para la mano fija */
+}
+
+/* ----- MANO DEL JUGADOR (footer fijo) ----- */
+.mano-cristal {
+    position: fixed;
+    bottom: 0; left: 50%;
+    transform: translateX(-50%);
+    width: 100%; max-width: 800px;
+    background: var(--glass);
+    backdrop-filter: blur(15px);
+    -webkit-backdrop-filter: blur(15px);
+    border: 2px solid var(--gold);
+    border-bottom: none;
+    border-radius: 20px 20px 0 0;
+    box-shadow: 0 -10px 30px rgba(0,0,0,0.8);
+    padding: 15px 20px;
+    transition: border-color 0.3s;
+}
+.mano-cristal.mi-turno {
+    border-color: #2ecc71;
+    box-shadow: 0 -5px 25px rgba(46, 204, 113, 0.2);
+}
+
+.header-mano {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 10px;
+}
+
+#turno-actual {
+    margin: 0;
+    font-size: 1rem;
+    color: white;
+    text-align: center;
+    flex-grow: 1;
+    font-weight: 600;
+}
+
+.mano {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    gap: -25px;
+    min-height: 140px;
+    overflow-x: auto;
+    padding-top: 15px;
+    scrollbar-width: none;
+    /* Scroll con arrastre de mouse */
+    cursor: grab;
+    user-select: none;
+    -webkit-overflow-scrolling: touch; /* scroll suave en iOS */
+}
+.mano:active {
+    cursor: grabbing;
+}
+/* Ocultar scrollbar en webkit */
+.mano::-webkit-scrollbar {
+    display: none;
+}
+
+/* ----- BOTÓN UNO ----- */
+.btn-uno {
+    background: #e74c3c;
+    color: white;
+    border: 3px solid white;
+    border-radius: 50%;
+    width: 60px; height: 60px;
+    font-weight: 900;
+    font-size: 1rem;
+    box-shadow: 0 5px 15px rgba(231, 76, 60, 0.6);
+    cursor: pointer;
+    transition: transform 0.1s;
+}
+.btn-uno:active { transform: scale(0.9); }
+
+/* ----- MAZO CERRADO (pila tomar) ----- */
+.mazo-cerrado {
+    cursor: pointer;
+    transition: transform 0.15s, box-shadow 0.15s;
+    position: relative;
+}
+.mazo-cerrado:hover {
+    transform: translateY(-6px) scale(1.04);
+}
+.mazo-cerrado:active { transform: scale(0.97); }
+
+/* Contador de cartas en el mazo */
+.mazo-contador {
+    position: absolute;
+    bottom: -22px;
+    left: 50%;
+    transform: translateX(-50%);
+    font-size: 0.75rem;
+    font-weight: 700;
+    color: rgba(255,255,255,0.6);
+    white-space: nowrap;
+    pointer-events: none;
+}
+
+/* ----- PILA DE DESCARTE ----- */
+#pila-tirar {
+    position: relative;
+    overflow: visible; /* necesario para que las capas detrás sean visibles */
+    isolation: auto;   /* no crear stacking context que bloquee z-index negativo */
+}
+
+/* Capas fantasma detrás de la carta de descarte (simulan altura de la pila) */
+.descarte-capa {
+    position: absolute;
+    top: 0;
+    left: 0;
+    width: 95px;
+    height: 145px;
+    border-radius: 10px;
+    border: 5px solid white;
+    background: #1a1a1a;
+    pointer-events: none;
+    transition: transform 0.3s ease, opacity 0.3s ease;
+}
+
+/* Contador de cartas en el descarte */
+.descarte-contador {
+    position: absolute;
+    bottom: -22px;
+    left: 50%;
+    transform: translateX(-50%);
+    font-size: 0.75rem;
+    font-weight: 700;
+    color: rgba(255,255,255,0.6);
+    white-space: nowrap;
+    pointer-events: none;
+}
+
+/* ----- ANIMACIÓN DE BARAJEO (reciclar descarte → mazo) ----- */
+@keyframes barajeo-volar {
+    0%   { opacity: 1; transform: translate(0, 0) rotate(0deg) scale(1); }
+    60%  { opacity: 0.8; transform: translate(var(--dx), var(--dy)) rotate(var(--rot)) scale(0.85); }
+    100% { opacity: 0; transform: translate(var(--dx), var(--dy)) rotate(var(--rot)) scale(0.5); }
+}
+
+@keyframes barajeo-mazo-pulso {
+    0%   { transform: scale(1); }
+    40%  { transform: scale(1.12); filter: brightness(1.4); }
+    100% { transform: scale(1); filter: brightness(1); }
+}
+
+.carta-barajeo {
+    position: fixed;
+    width: 95px;
+    height: 145px;
+    border-radius: 10px;
+    border: 5px solid white;
+    background: #050505;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    pointer-events: none;
+    z-index: 9999;
+    animation: barajeo-volar 0.55s ease-in forwards;
+}
+
+.carta-barajeo .logo-reverso {
+    color: white;
+    font-weight: 900;
+    font-size: 1.1rem;
+    text-align: center;
+    transform: rotate(-25deg);
+    font-family: 'Arial Black', sans-serif;
+}
+
+.mazo-barajeo-pulso {
+    animation: barajeo-mazo-pulso 0.6s ease-out forwards !important;
+}
+
+/* ----- BOTÓN REGLAS ----- */
+.btn-icono {
+    background: transparent;
+    border: none;
+    font-size: 1.8rem;
+    cursor: pointer;
+    transition: transform 0.2s, text-shadow 0.2s;
+    text-shadow: 0 0 5px rgba(255, 255, 255, 0.5);
+    padding: 0;
+    margin: 0;
+}
+.btn-icono:hover {
+    transform: scale(1.15);
+    text-shadow: 0 0 15px rgba(241, 196, 15, 0.8);
+}
+.btn-icono:active { transform: scale(0.9); }
+
+/* Ajuste para que los modales largos (como reglas) se puedan scrollear */
+.modal-caja.scrollable {
+    max-height: 85vh;
+    overflow-y: auto;
+    text-align: left;
+    padding: 20px 30px 30px; /* padding-bottom extra para que el último item no quede cortado */
+    scrollbar-width: thin;
+    scrollbar-color: rgba(255,255,255,0.2) transparent;
+}
+.modal-caja.scrollable::-webkit-scrollbar {
+    width: 5px;
+}
+.modal-caja.scrollable::-webkit-scrollbar-thumb {
+    background: rgba(255,255,255,0.2);
+    border-radius: 10px;
+}
+
+/* ==========================================
+   CONTADOR DE CARTAS EN MANO
+   Colores según cantidad:
+   1       → dorado pulsante  (¡emoción! estás a punto de ganar)
+   2-4     → verde brillante  (zona segura / buena posición)
+   5-9     → amarillo         (zona media)
+   10-14   → naranja          (empieza el peligro)
+   15-19   → rojo             (peligro alto)
+   20-24   → rojo oscuro pulsante (zona crítica)
+   ========================================== */
+.contador-cartas {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    min-width: 52px;
+    padding: 4px 10px;
+    border-radius: 12px;
+    border: 2px solid rgba(255,255,255,0.25);
+    background: rgba(0,0,0,0.35);
+    backdrop-filter: blur(6px);
+    transition: background 0.5s, border-color 0.5s, box-shadow 0.5s;
+    cursor: default;
+    user-select: none;
+}
+
+#num-cartas {
+    font-size: 1.5rem;
+    font-weight: 900;
+    line-height: 1;
+    transition: color 0.5s, text-shadow 0.5s;
+}
+
+.contador-label {
+    font-size: 0.6rem;
+    font-weight: 600;
+    letter-spacing: 0.05em;
+    text-transform: uppercase;
+    opacity: 0.75;
+    color: white;
+}
+
+/* --- Estado: 1 carta (¡UNO! emoción máxima) --- */
+.contador-cartas.estado-uno {
+    background: rgba(241,196,15,0.25);
+    border-color: #f1c40f;
+    box-shadow: 0 0 18px rgba(241,196,15,0.7), 0 0 40px rgba(241,196,15,0.3);
+    animation: contador-pulso-uno 0.8s ease-in-out infinite;
+}
+.contador-cartas.estado-uno #num-cartas {
+    color: #f1c40f;
+    text-shadow: 0 0 12px rgba(241,196,15,0.9);
+}
+
+/* --- Estado: 2-4 cartas (zona segura) --- */
+.contador-cartas.estado-seguro {
+    background: rgba(46,204,113,0.2);
+    border-color: #2ecc71;
+    box-shadow: 0 0 10px rgba(46,204,113,0.4);
+}
+.contador-cartas.estado-seguro #num-cartas {
+    color: #2ecc71;
+    text-shadow: 0 0 8px rgba(46,204,113,0.6);
+}
+
+/* --- Estado: 5-9 cartas (zona media) --- */
+.contador-cartas.estado-medio {
+    background: rgba(241,196,15,0.15);
+    border-color: #f1c40f;
+    box-shadow: 0 0 8px rgba(241,196,15,0.3);
+}
+.contador-cartas.estado-medio #num-cartas {
+    color: #f1c40f;
+    text-shadow: 0 0 6px rgba(241,196,15,0.5);
+}
+
+/* --- Estado: 10-14 cartas (peligro leve) --- */
+.contador-cartas.estado-alerta {
+    background: rgba(230,126,34,0.2);
+    border-color: #e67e22;
+    box-shadow: 0 0 10px rgba(230,126,34,0.4);
+}
+.contador-cartas.estado-alerta #num-cartas {
+    color: #e67e22;
+    text-shadow: 0 0 8px rgba(230,126,34,0.6);
+}
+
+/* --- Estado: 15-19 cartas (peligro alto) --- */
+.contador-cartas.estado-peligro {
+    background: rgba(231,76,60,0.2);
+    border-color: #e74c3c;
+    box-shadow: 0 0 12px rgba(231,76,60,0.5);
+    animation: contador-pulso-peligro 1.2s ease-in-out infinite;
+}
+.contador-cartas.estado-peligro #num-cartas {
+    color: #e74c3c;
+    text-shadow: 0 0 10px rgba(231,76,60,0.7);
+}
+
+/* --- Estado: 20-24 cartas (zona crítica) --- */
+.contador-cartas.estado-critico {
+    background: rgba(192,57,43,0.3);
+    border-color: #c0392b;
+    box-shadow: 0 0 20px rgba(192,57,43,0.7), 0 0 50px rgba(192,57,43,0.3);
+    animation: contador-pulso-critico 0.6s ease-in-out infinite;
+}
+.contador-cartas.estado-critico #num-cartas {
+    color: #ff6b6b;
+    text-shadow: 0 0 14px rgba(231,76,60,0.9);
+}
+
+/* --- Animaciones de pulso --- */
+@keyframes contador-pulso-uno {
+    0%, 100% { transform: scale(1);    box-shadow: 0 0 18px rgba(241,196,15,0.7), 0 0 40px rgba(241,196,15,0.3); }
+    50%       { transform: scale(1.08); box-shadow: 0 0 28px rgba(241,196,15,0.9), 0 0 60px rgba(241,196,15,0.5); }
+}
+
+@keyframes contador-pulso-peligro {
+    0%, 100% { transform: scale(1);    box-shadow: 0 0 12px rgba(231,76,60,0.5); }
+    50%       { transform: scale(1.05); box-shadow: 0 0 22px rgba(231,76,60,0.8); }
+}
+
+@keyframes contador-pulso-critico {
+    0%, 100% { transform: scale(1);    box-shadow: 0 0 20px rgba(192,57,43,0.7), 0 0 50px rgba(192,57,43,0.3); }
+    50%       { transform: scale(1.1);  box-shadow: 0 0 35px rgba(192,57,43,0.9), 0 0 80px rgba(192,57,43,0.5); }
+}
+
+/* --- Animación de cambio de número (rebote) --- */
+@keyframes contador-rebote {
+    0%   { transform: scale(1); }
+    30%  { transform: scale(1.4); }
+    60%  { transform: scale(0.9); }
+    100% { transform: scale(1); }
+}
+.num-cartas-rebote {
+    animation: contador-rebote 0.35s ease-out forwards;
+}
+
+/* ==========================================
+   MODAL TIRA COLOR — descarte carta por carta
+   ========================================== */
+.lista-cartas-tira {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 10px;
+    justify-content: center;
+    margin: 12px 0;
+    max-height: 260px;
+    overflow-y: auto;
+    padding: 4px;
+}
+
+/* Botón de cada carta en el modal tira_color */
+.btn-carta-tira {
+    min-width: 70px;
+    padding: 10px 14px;
+    border-radius: 10px;
+    border: 3px solid rgba(255,255,255,0.6);
+    font-weight: 900;
+    font-size: 1rem;
+    cursor: pointer;
+    color: white;
+    text-shadow: 0 1px 3px rgba(0,0,0,0.6);
+    transition: transform 0.12s, box-shadow 0.12s, opacity 0.2s;
+    box-shadow: 0 4px 10px rgba(0,0,0,0.4);
+}
+.btn-carta-tira:hover:not(:disabled) {
+    transform: translateY(-4px) scale(1.08);
+    box-shadow: 0 8px 20px rgba(0,0,0,0.5);
+}
+.btn-carta-tira:active:not(:disabled) {
+    transform: scale(0.94);
+}
+.btn-carta-tira:disabled {
+    cursor: not-allowed;
+    opacity: 0.3;
+}
+
+/* Colores de fondo según el color de la carta */
+.btn-carta-tira.carta-rojo    { background: linear-gradient(135deg, #e74c3c, #c0392b); }
+.btn-carta-tira.carta-azul    { background: linear-gradient(135deg, #3498db, #2980b9); }
+.btn-carta-tira.carta-verde   { background: linear-gradient(135deg, #2ecc71, #27ae60); }
+.btn-carta-tira.carta-amarillo { background: linear-gradient(135deg, #f1c40f, #d4ac0d); color: #333; text-shadow: none; }

@@ -1,0 +1,139 @@
+/* css/base.css */
+/* Variables globales, reset, tipografía, botones genéricos, login, toasts */
+
+:root {
+    --bg-dark: #0f172a;
+    --glass:   rgba(30, 41, 59, 0.85);
+    --border:  rgba(255, 255, 255, 0.1);
+    --gold:    #f1c40f;
+}
+
+*, *::before, *::after { box-sizing: border-box; }
+
+body {
+    background: radial-gradient(circle at top center, #1e293b, var(--bg-dark));
+    color: white;
+    font-family: 'Segoe UI', Arial, sans-serif;
+    margin: 0;
+    height: 100vh;
+    height: 100dvh;
+    overflow: hidden;
+    display: flex;
+    flex-direction: column;
+    -webkit-tap-highlight-color: transparent;
+}
+
+/* ----- BOTONES GENÉRICOS ----- */
+.btn-principal {
+    background-color: var(--gold);
+    color: #000;
+    border: none;
+    padding: 12px 24px;
+    border-radius: 8px;
+    font-weight: 800;
+    font-size: 1.1rem;
+    cursor: pointer;
+    transition: transform 0.2s, box-shadow 0.2s;
+    text-transform: uppercase;
+}
+.btn-principal:hover {
+    transform: translateY(-3px);
+    box-shadow: 0 10px 20px rgba(241, 196, 15, 0.3);
+}
+
+/* ----- LOGIN ----- */
+.login-body { justify-content: center; align-items: center; }
+
+.login-container, .modal-cristal {
+    background: var(--glass);
+    backdrop-filter: blur(15px);
+    -webkit-backdrop-filter: blur(15px);
+    padding: 2.5rem;
+    border-radius: 16px;
+    border: 1px solid var(--border);
+    text-align: center;
+    box-shadow: 0 15px 35px rgba(0,0,0,0.6);
+    width: 90%;
+    max-width: 400px;
+    z-index: 2000;
+}
+
+.modal-cristal {
+    position: absolute;
+    top: 50%; left: 50%;
+    transform: translate(-50%, -50%);
+}
+
+.logo-title {
+    font-weight: 900;
+    letter-spacing: -1px;
+    font-size: 3rem;
+    margin: 0;
+    color: white;
+    text-shadow: 0 0 15px rgba(255,255,255,0.5);
+}
+
+.subtitle {
+    color: #bdc3c7;
+    margin: 0.25rem 0 0;
+    font-size: 1rem;
+}
+
+.input-group {
+    display: flex;
+    flex-direction: column;
+    gap: 15px;
+    margin: 25px 0;
+}
+
+input {
+    background: rgba(0,0,0,0.4);
+    border: 2px solid transparent;
+    padding: 15px;
+    border-radius: 8px;
+    color: white;
+    font-size: 1rem;
+    outline: none;
+    transition: 0.3s;
+}
+input:focus { border-color: var(--gold); }
+
+/* ----- ANIMACIONES GLOBALES ----- */
+@keyframes latido {
+    0%   { transform: scale(1); }
+    50%  { transform: scale(1.1); }
+    100% { transform: scale(1); }
+}
+
+/* ----- UTILIDADES ----- */
+.oculta { display: none !important; }
+
+/* ----- TOASTS ----- */
+#contenedor-toast {
+    position: fixed;
+    top: 20px; left: 50%;
+    transform: translateX(-50%);
+    z-index: 9999;
+    display: flex;
+    flex-direction: column;
+    gap: 8px;
+    pointer-events: none;
+}
+.toast {
+    padding: 12px 20px;
+    border-radius: 8px;
+    color: white;
+    font-weight: 600;
+    font-size: 0.95rem;
+    text-align: center;
+    box-shadow: 0 6px 20px rgba(0,0,0,0.5);
+    opacity: 0;
+    transform: translateY(-20px);
+    transition: 0.3s;
+    pointer-events: auto;
+}
+.toast-visible  { opacity: 1; transform: translateY(0); }
+.toast-warning  { background: linear-gradient(135deg, #f39c12, #e67e22); }
+.toast-error    { background: linear-gradient(135deg, #e74c3c, #c0392b); }
+.toast-success  { background: linear-gradient(135deg, #2ecc71, #27ae60); }
+.toast-info     { background: linear-gradient(135deg, #3498db, #2980b9); }

@@ -1,0 +1,70 @@
+/* css/rivales.css */
+/* Zona de rivales: tarjetas, botón acusar UNO */
+
+#zona-rivales {
+    display: flex;
+    flex-wrap: wrap;
+    justify-content: center;
+    gap: 10px;
+    padding: 60px 12px 8px;
+    max-height: 160px;
+    overflow-y: auto;
+}
+
+.rival-card {
+    background: rgba(255,255,255,0.07);
+    border: 1px solid rgba(255,255,255,0.15);
+    border-radius: 12px;
+    padding: 8px 14px;
+    text-align: center;
+    min-width: 90px;
+    transition: border-color 0.3s, background 0.3s;
+    position: relative;
+}
+
+.rival-card.rival-turno {
+    border-color: #2ecc71;
+    background: rgba(46,204,113,0.12);
+    box-shadow: 0 0 12px rgba(46,204,113,0.3);
+}
+
+.rival-card.rival-eliminado {
+    opacity: 0.45;
+    border-color: #e74c3c;
+    background: rgba(231,76,60,0.08);
+}
+
+.rival-nombre {
+    font-weight: 700;
+    font-size: 0.85rem;
+    color: white;
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    max-width: 100px;
+}
+
+.rival-cartas {
+    font-size: 0.8rem;
+    color: #bdc3c7;
+    margin: 2px 0;
+}
+
+.rival-puntos {
+    font-size: 0.75rem;
+    color: var(--gold);
+}
+
+.btn-acusar {
+    margin-top: 5px;
+    background: #e74c3c;
+    color: white;
+    border: none;
+    border-radius: 6px;
+    padding: 4px 8px;
+    font-size: 0.75rem;
+    font-weight: 700;
+    cursor: pointer;
+    animation: latido 1s infinite;
+}
+.btn-acusar:hover { background: #c0392b; }

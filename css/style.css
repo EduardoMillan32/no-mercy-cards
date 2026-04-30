@@ -1,0 +1,8 @@
+/* css/style.css */
+/* Punto de entrada CSS — importa todos los módulos de estilos */
+
+@import url('base.css');
+@import url('tablero.css');
+@import url('rivales.css');
+@import url('modales.css');
+@import url('cartas.css');
