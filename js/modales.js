@@ -30,7 +30,7 @@ export function mostrarModalReglas() {
             
             <h3 style="color: #3498db;">Reglas Especiales</h3>
             <ul style="font-size: 0.9rem; color: #ecf0f1; padding-left: 15px;">
-                <li><strong style="color: #e74c3c;">Apilar (Stacking):</strong> Si te tiran una carta de tomar (+2, +4, +6, +10), puedes pasar el castigo tirando una igual o mayor. ¡El último que no tenga carta, se lleva todo!</li>
+                <li><strong style="color: #e74c3c;">Apilar:</strong> Si te tiran una carta de tomar (+2, +4, +6, +10), puedes pasar el castigo tirando una igual o mayor. ¡El último que no tenga carta, se lleva todo!</li>
                 <li><strong style="color: #e74c3c;">Regla Piedad:</strong> Si un jugador acumula 25 cartas o más en su mano, queda eliminado de la partida.</li>
             </ul>
 
