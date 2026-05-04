@@ -1,6 +1,6 @@
 // js/logica.js
 import { db } from './firebase-config.js';
-import { ref, get, update, onDisconnect, remove } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-database.js";
+import { ref, get, update, onDisconnect, remove, runTransaction } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-database.js";
 
 const COLORES = ['rojo', 'azul', 'verde', 'amarillo'];
 
@@ -359,6 +359,13 @@ export async function aceptarCastigoStack() {
 
 // ==========================================
 // TERMINAR MANO (calcular puntos)
+// BUG 3 FIX: Castigo Fantasma V2
+// terminarMano leía jugador.mano directamente de `data` (snapshot viejo),
+// ignorando actualizacionesExtra donde ya estaban las cartas inyectadas
+// (ej: Wild Toma10 jugado como última carta → víctima recibía cartas en
+// actualizaciones pero el cálculo de puntos usaba la mano vieja vacía).
+// Solución: para cada jugador, priorizar la mano que ya está en
+// actualizacionesExtra[`jugadores/${nombre}/mano`] antes de leer data.
 // ==========================================
 export async function terminarMano(idSala, ganadorNombre, data, actualizacionesExtra = {}) {
     const salaRef = ref(db, `no_mercy/salas/${idSala}`);
@@ -383,8 +390,13 @@ export async function terminarMano(idSala, ganadorNombre, data, actualizacionesE
         } else if (yaEliminadoAntes) {
             // No contar: ya fue contado en manos anteriores
         } else {
-            const mano = limpiarMano(jugador.mano);
-            puntosGanados += calcularPuntosCartas(mano);
+            // BUG 3 FIX: priorizar la mano ya actualizada en actualizacionesExtra
+            // (puede contener cartas de castigo inyectadas en este mismo turno)
+            // antes de caer al snapshot viejo de data.
+            const manoFinal = actualizacionesExtra[`jugadores/${nombre}/mano`] !== undefined
+                ? limpiarMano(actualizacionesExtra[`jugadores/${nombre}/mano`])
+                : limpiarMano(jugador.mano);
+            puntosGanados += calcularPuntosCartas(manoFinal);
         }
     });
 
@@ -438,30 +450,62 @@ export async function gritarUno() {
 
 // ==========================================
 // ACUSAR UNO (otro jugador no gritó UNO)
+// BUG 1 FIX: Linchamiento Masivo (Race Condition)
+// Antes: get() + update() separados → múltiples acusadores simultáneos
+// leían el mismo estado y cada uno aplicaba +2 cartas → víctima recibía
+// 2×N cartas (N = número de acusadores).
+// Solución: runTransaction() garantiza atomicidad. Solo el primer acusador
+// que llegue a Firebase modifica el estado; los demás ven la mano ya
+// actualizada (length > 1) y abortan la transacción sin penalizar.
+//
+// BUG 2 FIX: Acusador de Salvas (Mazo vacío)
+// Antes: el for loop sacaba cartas del mazo sin verificar si había suficientes
+// ni reciclar el descarte → con mazo vacío el acusado salía ileso.
+// Solución: dentro de la transacción, reciclar pila_descarte → mazo si
+// el mazo no tiene suficientes cartas para la penalización.
 // ==========================================
 export async function acusarUno(nombreAcusado) {
     const idSala  = sessionStorage.getItem('idSala');
     const salaRef = ref(db, `no_mercy/salas/${idSala}`);
 
-    const snapshot = await get(salaRef);
-    const data     = snapshot.val();
+    let acusacionExitosa = false;
 
-    const jugadorAcusado = data.jugadores[nombreAcusado];
-    const manoAcusado    = limpiarMano(jugadorAcusado?.mano);
+    await runTransaction(salaRef, (data) => {
+        // Si Firebase devuelve null (lectura inicial), abortar y reintentar
+        if (!data) return;
 
-    const estaProtegido = jugadorAcusado.uno_gritado || jugadorAcusado.uno_pregritado;
-    if (manoAcusado.length === 1 && !estaProtegido) {
-        let mazo     = limpiarMano(data.mazo);
-        let manoNueva = [...manoAcusado];
+        const jugadorAcusado = data.jugadores?.[nombreAcusado];
+        if (!jugadorAcusado) return; // jugador no existe, abortar
 
+        const manoAcusado = limpiarMano(jugadorAcusado.mano);
+
+        // Verificar que sigue con 1 carta y sin protección
+        // (esto es lo que evita el Linchamiento Masivo: el segundo acusador
+        // ya verá manoAcusado.length > 1 y abortará)
+        const estaProtegido = jugadorAcusado.uno_gritado || jugadorAcusado.uno_pregritado;
+        if (manoAcusado.length !== 1 || estaProtegido) return; // abortar transacción
+
+        // BUG 2 FIX: reciclar descarte si el mazo no tiene suficientes cartas
+        let mazo = limpiarMano(data.mazo);
+        if (mazo.length < 2) {
+            const descarte = limpiarMano(data.pila_descarte);
+            mazo = [...mazo, ...barajar(descarte)];
+            data.pila_descarte = [];
+        }
+
+        const manoNueva = [...manoAcusado];
         for (let i = 0; i < 2 && mazo.length > 0; i++) {
             manoNueva.push(mazo.pop());
         }
 
-        await update(salaRef, {
-            [`jugadores/${nombreAcusado}/mano`]: manoNueva,
-            'mazo': mazo
-        });
+        data.jugadores[nombreAcusado].mano = manoNueva;
+        data.mazo = mazo;
+
+        acusacionExitosa = true;
+        return data; // confirmar la transacción
+    });
+
+    if (acusacionExitosa) {
         window.mostrarToast(`¡${nombreAcusado} no gritó UNO! Toma 2 cartas. 😈`, "success");
     } else {
         window.mostrarToast("No puedes acusar a ese jugador.", "warning");
